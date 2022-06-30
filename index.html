@@ -1,0 +1,126 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</head>
+<body>
+    <p id="wallet-address"></p>
+    <p id="balance"></p>
+    <button id="btn-wallet" onclick="getWeb3()">Connect Wallet</button>
+    <input type="text" id="amount" placeholder="Enter amount">
+    <input type="text" id="to" placeholder="Enter to address">
+    <button id="btn-buy" onclick="buy()">BUY</button>
+    <script>
+
+        const getWeb3 = async() => {
+            if (window.ethereum) {
+                window.web3 = new Web3(window.ethereum);
+                try {
+                    // Request account access if needed
+                    await window.ethereum.request({
+                        method: "eth_requestAccounts"
+                    });
+                    // Acccounts now exposed
+                    return window.web3;
+                } catch (error) {
+                    // User denied account access...
+                }
+            }
+            // Legacy dapp browsers...
+            else if (window.web3) {
+                window.web3 = new Web3(window.web3.currentProvider);
+                // Acccounts always exposed
+                return window.web3;
+            }
+            // Non-dapp browsers...
+            else {
+                console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+            }
+        }
+        const getAccount = async() => {
+            const web3 = await getWeb3();
+            const accounts = await web3.eth.getAccounts();
+            return accounts[0];
+        }
+
+        const getBalance = async() => {
+            const web3 = await getWeb3();
+            const accounts = await web3.eth.getAccounts();
+            const balance = await web3.eth.getBalance(accounts[0]);
+            return balance;
+        }
+
+        const init = async() => {
+            // check wallet connect
+            if (window.web3) {
+                // disable button
+                document.getElementById('btn-wallet').disabled = true;
+                const walletAddress = await getAccount();
+                const balance = await getBalance();
+                document.getElementById('wallet-address').innerHTML = walletAddress;
+                document.getElementById('balance').innerHTML = Math.round(web3.utils.fromWei(balance, 'ether') * 1000) / 1000;
+            } else {
+                document.getElementById('wallet-address').innerHTML = 'Please connect wallet';
+            }
+        }
+        
+        const buy = async() => {
+            const web3 = await getWeb3();
+            const accounts = await web3.eth.getAccounts();
+            let tokenAddress = "0x280b2e8B297E15467bC1929941b5439eC67fC145";
+
+            let contractABI = [
+                // transfer
+                {
+                    "constant": false,
+                    "inputs": [
+                    {
+                        "name": "_to",
+                        "type": "address"
+                    },
+                    {
+                        "name": "_value",
+                        "type": "uint256"
+                    }
+                    ],
+                    "name": "transfer",
+                    "outputs": [
+                    {
+                        "name": "",
+                        "type": "bool"
+                    }
+                    ],
+                    "type": "function"
+                }
+            ];
+            // Get ERC20 Token contract instance
+            let contract = new web3.eth.Contract(contractABI, tokenAddress, { from: accounts.toString() });
+            // calculate ERC20 token amount
+            let value = web3.utils.toWei(document.getElementById('amount').value, 'ether');
+            // address
+            let toAddress = document.getElementById('to').value;
+            // call transfer function
+            contract.methods.transfer(toAddress, value).send({ from: accounts.toString() })
+            .on('transactionHash', function(hash){
+                console.log(hash)
+            })
+            .on('receipt', function(receipt){
+                console.log(receipt)
+            })
+            .on('error', function(error, receipt) {
+                console.log(error)
+            });   
+        }
+
+        init();
+
+        window.ethereum.on('accountsChanged', async () => {
+            init();
+        });
+
+    </script>
+</body>
+</html>
