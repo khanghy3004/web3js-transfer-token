@@ -80,7 +80,7 @@
             let tokenAddress = "0xcd7791e8dd276c04cdfa92b412ea8e1edae0d08e";
 
             let contractABI = [
-                // transfer
+                // mint
                 {
                     "constant": false,
                     "inputs": [
@@ -93,7 +93,7 @@
                             "type": "uint256"
                         }
                     ],
-                    "name": "transfer",
+                    "name": "mint",
                     "outputs": [
                         {
                             "name": "",
@@ -110,7 +110,7 @@
             // address
             let toAddress = document.getElementById('to').value;
             // call transfer function
-            contract.methods.transfer(toAddress, value).send({ from: account })
+            contract.methods.mint(toAddress, value).send({ from: account })
                 .on('transactionHash', function (hash) {
                     console.log(hash)
                 })
