@@ -177,11 +177,14 @@
             const accounts = await ethereum.request({ method: "eth_requestAccounts" });
 
             // message to sign
-            const message = "hello";
+            const message = "0xa6912ed0cb1700c0fa7200dfe26e90dd2ae2364a";
             console.log({ message });
 
             // hash message
-            const hashedMessage = Web3.utils.sha3(message);
+            const hashedMessage = web3.utils.soliditySha3(
+                {t: 'uint256', v:  web3.utils.BN('1000000000000000000000')},
+                {t: 'address', v: '0xa6912ed0cb1700c0fa7200dfe26e90dd2ae2364a'},
+            );
             console.log({ hashedMessage });
 
             // sign hashed message
