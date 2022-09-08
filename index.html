@@ -16,6 +16,10 @@
         <button class="btn btn-danger" id="btn-wallet" onclick="getWeb3()">Connect Wallet</button>
         <input class="form-control mt-3" type="text" id="amount" placeholder="Enter amount">
         <input class="form-control mt-3 mb-3" type="text" id="to" placeholder="Enter to address">
+        For signature
+        <input class="form-control mt-3" type="text" id="amount2" placeholder="Enter amount">
+        <input class="form-control mt-3 mb-3" type="text" id="to2" placeholder="Enter user">
+
         <button class="btn btn-success" id="btn-buy" onclick="buy()">BUY</button>
         <button class="btn btn-success" id="btn-mint" onclick="mintToken()">MINT 100 BUSD</button>
         <button class="btn btn-success" id="btn-mint" onclick="signMessage()">signMessage</button>
@@ -177,13 +181,14 @@
             const accounts = await ethereum.request({ method: "eth_requestAccounts" });
 
             // message to sign
-            const message = "0xa6912ed0cb1700c0fa7200dfe26e90dd2ae2364a";
-            console.log({ message });
+            const address = document.getElementById('to2').value.toLowerCase();
+            const value = web3.utils.toWei(document.getElementById('amount2').value, 'ether');
+            console.log({ address, value });
 
             // hash message
             const hashedMessage = web3.utils.soliditySha3(
-                {t: 'uint256', v:  web3.utils.BN('1000000000000000000000')},
-                {t: 'address', v: '0xa6912ed0cb1700c0fa7200dfe26e90dd2ae2364a'},
+                {t: 'uint256', v:  web3.utils.BN(value)},
+                {t: 'address', v: address},
             );
             console.log({ hashedMessage });
 
